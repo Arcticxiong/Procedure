@@ -1,0 +1,44 @@
+how to coding the entity.hbm.xml
+
+For example :
+    entity:User
+    properties:id、name、password、age
+  
+  
+User.hbm.xml 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+	<class name="com.procedure.bean.User" table="t_user">
+ 		<id name="id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="name"></property>
+ 		<property name="age"></property>
+ 		<property name="password"></property>
+ 	</class>
+ 	---------------------------------------------------------------------------------------------------------------------
+	<!--insert  --> 	
+ 	<sql-query name="userInsert">
+ 	{call user_insert(?,?,?)}
+ 	</sql-query>
+  ---------------------------------------------------------------------------------------------------------------------
+ 	<!--delete  --> 	
+ 	<sql-query name="userDelete">
+ 	{call user_delete(?)}
+ 	</sql-query>
+  <!--update is same --> 	
+  ---------------------------------------------------------------------------------------------------------------------
+ 	<!--select  -->
+ 	<sql-query name="getUser" callable="true">
+ 		<return alias="user" class="com.procedure.entity.User"></return>
+ 		{call selectAll()};
+ 		<!-- {Call selectSingleById(?)}; -->
+ 	</sql-query>
+ 	
+</hibernate-mapping>
+  
