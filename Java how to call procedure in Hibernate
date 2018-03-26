@@ -1,0 +1,90 @@
+Method 1: 
+
+@Test	
+	public void fun01(){
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			String url = "jdbc:mysql://localhost:3306/procedure";
+			String user ="root";
+			String password = "123";
+			Connection connection = (Connection) DriverManager.getConnection(url, user, password);
+			CallableStatement cs = connection.prepareCall("{call selectAll()}");
+			ResultSet rs = cs.executeQuery();
+			while(rs.next()){
+				System.out.println(rs.getInt(1)+","+rs.getString(2)+","+rs.getInt(3));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+  
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Method 2: (for insert、delete、update)
+  
+  @Test
+	public void fun02(){
+		Session session = HibernateUtils.openSession();
+		
+//		session.getNamedQuery("userInsert").setInteger(0, 7).setString(1, "关羽").setInteger(2, 30).executeUpdate();
+		
+//		session.getNamedQuery("userDelete").setInteger(0, 8).executeUpdate();
+		
+		session.close();
+	}
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Method 3: (for select)
+  
+  @Test
+	public void fun03(){
+		Session session = HibernateUtils.openSession();
+		List<User> list = session.getNamedQuery("getUser").list();
+		for (User user : list) {
+			System.out.println(user);
+		}
+		/*User user = (User) session.getNamedQuery("getUser").setInteger(0, 5).uniqueResult();
+		System.out.println(user);*/
+		session.close();
+	}
+  -----------------------------------------------------------------------------------------------------------------------------
+  Method 4:
+  
+  @Test
+	public void fun04(){
+		Session session = HibernateUtils.openSession();
+		SQLQuery query = session.createSQLQuery("{Call user_select(?)}");
+		query.setInteger(0, 1);
+		User user = (User) query.setResultTransformer(Transformers.aliasToBean(User.class)).uniqueResult();
+    System.out.println(user);
+    
+  	/*
+    SQLQuery query = session.createSQLQuery("{Call selectAll()}");
+    List<User> list = query.setResultTransformer(Transformers.aliasToBean(User.class)).list();
+		for (User user : list) {
+			System.out.println(user);
+		}*/
+		
+		session.close();
+	}
+  ------------------------------------------------------------------------------------------------------------------------------
+  Method 5:
+  
+  @Test
+	public void fun05(){
+		Session session = HibernateUtils.openSession();
+		//session.connection过时
+		ResultSet resultSet = session.doReturningWork(new ReturningWork<ResultSet>() {
+		  	@Override
+		  	public ResultSet execute(Connection connection) throws SQLException {
+			    	ResultSet rs = connection.prepareCall("call selectAll()").executeQuery();
+			    	while(rs.next()){
+				    	System.out.print(rs.getInt(1)+",");
+				    	System.out.print(rs.getString(2)+",");
+				    	System.out.print(rs.getInt(3)+",");
+				    	System.out.print(rs.getString(4));
+				    	System.out.println();
+			    	}
+			  	return null;
+			  }
+		});
+	}
+  
